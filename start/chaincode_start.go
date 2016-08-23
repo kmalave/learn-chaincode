@@ -42,8 +42,30 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
-
+	err := stub.PutState("hello_world", []byte(args[0]))
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
+}
+
+// Write to the ledger any one key value pair listed as two strings in the args array.
+func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+    var key, value string
+    var err error
+    fmt.Println("running write()")
+
+    if len(args) != 2 {
+        return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
+    }
+
+    key = args[0]                            //rename for fun
+    value = args[1]
+    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
+    if err != nil {
+        return nil, err
+    }
+    return nil, nil
 }
 
 // Invoke is our entry point to invoke a chaincode function
@@ -53,7 +75,9 @@ func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args
 	// Handle different functions
 	if function == "init" {													//initialize the chaincode state, used as reset
 		return t.Init(stub, "init", args)
-	}
+	} else if function == "write" {
+    return t.write(stub, args)
+  }
 	fmt.Println("invoke did not find func: " + function)					//error
 
 	return nil, errors.New("Received unknown function invocation")
