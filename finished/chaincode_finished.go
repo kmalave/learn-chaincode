@@ -19,7 +19,6 @@ package main
 import (
 	"errors"
 	"fmt"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -48,15 +47,17 @@ func (t *SimpleChaincode) Init(stub *shim.ChaincodeStub, function string, args [
 	return nil, nil
 }
 
-// Invoke isur entry point to invoke a chaincode function
+// Invoke is our entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub *shim.ChaincodeStub, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
 
 	// Handle different functions
 	if function == "init" {
 		return t.Init(stub, "init", args)
+	} else if function == "writeit" {
+		return t.writeit(stub, args)
 	} else if function == "write" {
-		return t.write(stub, args)
+		return t.writeit(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -68,19 +69,21 @@ func (t *SimpleChaincode) Query(stub *shim.ChaincodeStub, function string, args 
 	fmt.Println("query is running " + function)
 
 	// Handle different functions
-	if function == "read" { //read a variable
-		return t.read(stub, args)
+	if function == "readit" { //read a variable
+		return t.readit(stub, args)
+	} else if function == "read" { //read a variable
+		return t.readit(stub, args)
 	}
 	fmt.Println("query did not find func: " + function)
 
-	return nil, errors.New("Kent you received unknown function query. function=" + function + " args[0]=" + args[0])
+	return nil, errors.New("Kent 1: Received unknown function query. function=" + function + " args[0]=" + args[0])
 }
 
 // write - invoke function to write key/value pair
-func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) writeit(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	var key, value string
 	var err error
-	fmt.Println("running write()")
+	fmt.Println("running writeit()")
 
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
@@ -96,7 +99,7 @@ func (t *SimpleChaincode) write(stub *shim.ChaincodeStub, args []string) ([]byte
 }
 
 // read - query function to read key/value pair
-func (t *SimpleChaincode) read(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
+func (t *SimpleChaincode) readit(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
 	var key, jsonResp string
 	var err error
 
